@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ipvsadm -C
+
+ipvsadm -A -t {{ virtual_ip }}:80 -s rr
+{% for host in groups['loadbal'] %}
+ipvsadm -a -t {{ virtual_ip }}:80 -r {{ hostvars[host]['internal_ip'] }} -m
+{% endfor %}
+
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+sysctl -p
+
+  

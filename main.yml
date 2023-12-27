@@ -1,0 +1,5 @@
+---
+- hosts: loadbal
+  become: yes
+  roles:
+  - ../ansible-keepalived-ipvsadm

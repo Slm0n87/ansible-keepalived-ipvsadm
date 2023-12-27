@@ -1,0 +1,10 @@
+---
+- name: Restart Keepalived
+  service:
+    name: keepalived
+    state: restarted
+
+- name: Restart Networking Service
+  service:
+    name: networking
+    state: restarted

@@ -1,0 +1,27 @@
+---
+- name: Install keepalived
+  apt:
+    name: keepalived
+    state: present
+
+- name: Install ipvsadm
+  apt:
+    name: ipvsadm
+    state: present
+
+- name: Generate keepalived configuration
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  notify: Restart Keepalived
+    
+- name: Generate ipvsadm script
+  template:
+    src: ipvsadm.sh.j2
+    dest: /usr/local/bin/ipvsadm.sh
+    mode: '0755'
+
+- name: Run ipvsadm script
+  ansible.builtin.shell: /usr/local/bin/ipvsadm.sh
+  notify: Restart Networking Service
+
