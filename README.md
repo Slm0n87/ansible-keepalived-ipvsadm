@@ -1,5 +1,5 @@
 # ansible-keepalived-ipvsadm
-A keepalived and ipvsadm ansible role that can easily be adjusted with variables within the inventory file. The role uses "apt" as the test environment uses multiple Debian 12 (bookworm) virtual machines.
+A keepalived and ipvsadm ansible role that can be adjusted with variables within the inventory file.
 
 Simple ansible-playbook command with inventory are used to run this role. The main.yml inside the role's file uses directory traversal to access the other folders/files.
 > ansible-playbook main.yml -i inventory.ini
