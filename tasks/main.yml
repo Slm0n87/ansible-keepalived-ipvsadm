@@ -1,13 +1,9 @@
 ---
-- name: Install keepalived
+- name: Install packages
   apt:
-    name: keepalived
+    name: ['keepalived','ipvsadm']
     state: present
-
-- name: Install ipvsadm
-  apt:
-    name: ipvsadm
-    state: present
+    update_cache: yes
 
 - name: Generate keepalived configuration
   template:
