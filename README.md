@@ -7,8 +7,8 @@ A currently simple keepalived and ipvsadm ansible role.
 ## vars
 Variables can be declared in `main.yml` with role or in `inventory.*` file.
 
-- `virtual_ip` -> A shared IP address between servers that will be loadbalanced.
-- `auth_passwd` -> Authentication password for failover synchronization.
+- `virtual_ip` -> A string that holds a shared IP address between servers that will be loadbalanced. ***REQUIRED***
+- `auth_passwd` -> A string that holds an authentication password for failover synchronization. ***REQUIRED***
 
 ## main.yml example
 ```yml
@@ -28,7 +28,7 @@ servers:
         host2:
             ansible_host: 192.168.33.102
     vars:
-        virtual_ip: 192.168.65.10
+        virtual_ip: 192.168.65.10 # shared IP address
         auth_passwd: 1234 # anything you want
 ```
 ### ini
@@ -38,7 +38,7 @@ host1 ansible_host=192.168.33.101
 host2 ansible_host=192.168.33.102
 
 [servers:vars]
-virtual_ip=192.168.65.10
+virtual_ip=192.168.65.10 # shared IP address
 auth_passwd=1234 # anything you want
 ```
 ---
