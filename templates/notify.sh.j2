@@ -1,0 +1,29 @@
+#!/bin/bash
+         
+TYPE=$1
+NAME=$2
+ENDSTATE=$3
+IFACE={{ interface }} 
+
+{% set idx=ansible_play_hosts.index(inventory_hostname)+1 %}
+case $ENDSTATE in
+    "BACKUP") # Perform action for transition to BACKUP state
+       ipvsadm --start-daemon backup --syncid {{ idx+1 if idx < (num_hosts | int) else 1 }} --mcast-interface=$IFACE 
+              exit 0
+              ;;
+    "FAULT")  # Perform action for transition to FAULT state
+              exit 0
+              ;;
+    "STOP")  # Perform action for transition to STOP state
+       ipvsadm --stop-daemon master
+       ipvsadm --stop-daemon backup
+              exit 0
+              ;;
+    "MASTER") # Perform action for transition to MASTER state
+       ipvsadm --start-daemon master --syncid {{ idx }} --mcast-interface=$IFACE
+              exit 0
+              ;;
+    *)        echo "Unknown state ${ENDSTATE}"
+              exit 1
+              ;;
+esac

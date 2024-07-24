@@ -1,0 +1,5 @@
+---
+num_hosts: "{{ ansible_play_hosts | length }}"
+
+lb_algo: lc # Least-Connections
+lb_kind: DR # Director Routing

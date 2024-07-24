@@ -1,46 +1,53 @@
 # ansible-keepalived-ipvsadm
 A currently simple keepalived and ipvsadm ansible role.
 
-> This playbook was made with a debian testing environment therefore static configurations like the interface in the `keepalived.conf.j2` template is `enp0s3`. 
+> This playbook was made with a debian testing environment therefore only `debian.yml` to adjust variables for the debian OS is avaliable on github. 
 > ***Future updates may change this to be more flexable to more distros***
 
 ## vars
-Variables can be declared in `main.yml` with role or in `inventory.*` file.
+Variables can be declared in `main.yml` with role or in `inventory.*` file. ***ALL REQUIRED***
 
-- `virtual_ip` -> A string that holds a shared IP address between servers that will be loadbalanced. ***REQUIRED***
-- `auth_passwd` -> A string that holds an authentication password for failover synchronization. ***REQUIRED***
+`virtual_servers` group:
+- `ip` -> The IP address of the virtual servers that clients will access the services from.
+- `cidr` -> The CIDR Notation for the virtual ip address.
+- `auth_passwd` -> A string that holds an authentication password for failover synchronization. 
+
+`real_servers` group:
+- `ip` -> The IP address of the real server being loadbalanced.
 
 ## main.yml example
 ```yml
 ---
 - hosts: servers
+  become: yes
   roles:
-  - { role: ansible-keepalived-ipvsadm, vars...}
+  - { role: ansible-keepalived-ipvsadm , vars...}
 ```
 
 ## inventory examples
 ### yml
 ```yml
 servers:
-    hosts:
-        host1:
-            ansible_host: 192.168.33.101
-        host2:
-            ansible_host: 192.168.33.102
-    vars:
-        virtual_ip: 192.168.65.10 # shared IP address
-        auth_passwd: 1234 # anything you want
+  hosts:
+    deb1: 
+      ansible_host: 192.168.56.109
+    deb2: 
+      ansible_host: 192.168.56.111
+      
+  vars:
+    virtual_servers:
+    - vs1:
+      ip: 10.0.0.10
+      cidr: 24
+      auth_passwd: 1111
+    - vs2:  
+      ip: 10.0.0.11
+      cidr: 24
+      auth_passwd: 2222
+
+    real_servers:
+    - rs1:
+      ip: 172.16.0.33
+    - rs2:
+      ip: 172.16.0.34
 ```
-### ini
-```ini
-[servers]
-host1 ansible_host=192.168.33.101 
-host2 ansible_host=192.168.33.102
-
-[servers:vars]
-virtual_ip=192.168.65.10 # shared IP address
-auth_passwd=1234 # anything you want
-```
----
-
-

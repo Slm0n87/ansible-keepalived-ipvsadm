@@ -1,0 +1,9 @@
+---
+interface: enp0s3
+
+keepalived_package_name: "keepalived"
+keepalived_service_name: "keepalived"
+keepalived_folder_path: "/etc/keepalived"
+keepalived_config_file_path: "/etc/keepalived/keepalived.conf"
+
+ipvsadm_package_name: "ipvsadm"

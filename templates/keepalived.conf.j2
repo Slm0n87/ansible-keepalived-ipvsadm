@@ -1,15 +1,48 @@
-vrrp_instance VI_1 {
-    state {{ 'MASTER' if (groups['servers'].index(inventory_hostname)) == 0 else 'BACKUP' }}
-    interface enp0s3
-    virtual_router_id 51
-    priority {{ '255' if (groups['servers'].index(inventory_hostname)) == 0 else '254' }}
-    
-    authentication {
-      auth_type PASS
-      auth_pass {{ auth_passwd }}
+global_defs {
+    router_id lvs_lb # Linux Virtual Servers - Load Balancer
+    enable_script_security
+    script_user root
     }
 
-    virtual_ipaddress {
-        {{ virtual_ip }}
+{% for vs in virtual_servers %}
+{% set state="MASTER" if ansible_play_hosts.index(inventory_hostname)==loop.index0 else "BACKUP" %}
+vrrp_instance VI_{{ loop.index }} {
+    state {{ state }} # MASTER or BACKUP
+    interface {{ interface }} # Distro dependant
+    virtual_router_id {{ 100 + loop.index0 }}
+    priority {{ 200 if state=="MASTER" else 180 }}
+    advert_int 1
+    authentication { 
+        auth_type PASS  
+        auth_pass {{ vs.auth_passwd }}
     }
+    virtual_ipaddress { 
+        {{ vs.ip }}/{{ vs.cidr }}
+    }
+    notify "/etc/keepalived/notify.sh"
 }
+
+{% endfor %}
+{% for vs in virtual_servers %}
+virtual_server {{ vs.ip }} 80 {
+    delay_loop 6 
+    lb_algo {{ lb_algo }}
+    lb_kind {{ lb_kind }}
+    protocol TCP 
+{% for rs in real_servers %}
+    real_server {{ rs.ip }} {
+        weight {{ loop.index }}
+        HTTP_GET {
+            url {
+              path / 
+              status_code 200
+            }
+            connect_timeout 3 
+            retry 2
+            delay_before_retry 2
+        }
+    }
+{% endfor %}
+}
+
+{% endfor %}

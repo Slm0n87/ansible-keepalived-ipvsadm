@@ -1,23 +1,40 @@
 ---
-- name: Install packages
-  apt:
-    name: ['keepalived','ipvsadm']
+- name: Gather variables for operating system
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_facts['distribution'] | lower }}.yml"
+        - "{{ ansible_facts['os_family'] | lower }}.yml"
+      paths:
+        - "{{ role_path }}/vars"
+  tags:
+    - always
+
+- name: Install keepalived + packages
+  ansible.builtin.package:
+    name: ["{{ keepalived_package_name }}","{{ ipvsadm_package_name }}"]
     state: present
     update_cache: yes
+    
+- name: Generate notify ipvsadm script
+  ansible.builtin.template:
+    src: notify.sh.j2
+    dest: "{{ keepalived_folder_path }}/notify.sh"
+    mode: "0755"
+  notify: reload keepalived
 
 - name: Generate keepalived configuration
-  template:
+  ansible.builtin.template:
     src: keepalived.conf.j2
-    dest: /etc/keepalived/keepalived.conf
-  notify: Restart Keepalived
-    
-- name: Generate ipvsadm script
-  template:
-    src: ipvsadm.sh.j2
-    dest: /usr/local/bin/ipvsadm.sh
-    mode: '0755'
+    dest: "{{ keepalived_config_file_path }}"
+    mode: "0640"
+  notify: restart keepalived
 
-- name: Run ipvsadm script
-  ansible.builtin.shell: /usr/local/bin/ipvsadm.sh
-  notify: Restart Networking Service
-
+- name: Ensuring keepalived is enabled and started
+  ansible.builtin.service:
+    daemon_reload: yes
+    name: "{{ keepalived_service_name }}"
+    state: "started"
+    enabled: "yes"
+  register: _servicestart

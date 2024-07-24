@@ -1,10 +1,15 @@
 ---
-- name: Restart Keepalived
-  service:
-    name: keepalived
+- name: restart keepalived
+  ansible.builtin.service:
+    name: "{{ keepalived_service_name }}"
     state: restarted
+  register: _servicestart
 
-- name: Restart Networking Service
-  service:
-    name: networking
-    state: restarted
+- name: reload keepalived
+  ansible.builtin.service:
+    name: "{{ keepalived_service_name }}"
+    state: Reload
+  register: _servicereload
+  when:
+    - _servicestart is not changed
+    - _servicestart is not defined
