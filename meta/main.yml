@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  role_name: keepalived-ipvsadm
+  namespace: Slm0n87
+  author: EmanG7 
+  description: >
+    Keepalived & ipvsadm ansible role.
+  platforms:
+    - name: ArchLinux
+      versions:
+        - any
+    - name: Ubuntu
+      versions:
+        - jammy
+  galaxy_tags:
+    - ipvs
+    - networking
+    - loadbalancer
+dependencies: []
