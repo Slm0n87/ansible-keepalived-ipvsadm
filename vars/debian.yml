@@ -1,6 +1,4 @@
 ---
-interface: enp0s3
-
 keepalived_package_name: "keepalived"
 keepalived_service_name: "keepalived"
 keepalived_folder_path: "/etc/keepalived"

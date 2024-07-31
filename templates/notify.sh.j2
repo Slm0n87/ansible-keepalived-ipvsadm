@@ -1,9 +1,9 @@
 #!/bin/bash
-         
+
 TYPE=$1
 NAME=$2
 ENDSTATE=$3
-IFACE={{ interface }} 
+IFACE={{ ansible_default_ipv4.interface }}
 
 {% set idx=ansible_play_hosts.index(inventory_hostname)+1 %}
 case $ENDSTATE in
