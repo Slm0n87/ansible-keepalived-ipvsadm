@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: keepalived-ipvsadm
+  namespace: Slm0n87
+  author: Simon Stier
+  description: >
+    Sets up IPVS Loadbalancer and Keepalived
+  license: BSD
+  min_ansible_version: 2.7
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammi
+  galaxy_tags:
+    - loadbalancer
+    - networking
+    - keepalived
+dependencies: []
