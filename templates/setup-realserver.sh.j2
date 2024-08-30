@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ip link add eth-vip type dummy
+ip link set eth-vip up
+
+arptables -A INPUT -d {{ ipvs_vip }} -j DROP
+arptables -A OUTPUT -s {{ ipvs_vip }} -j DROP
+ip a add {{ ipvs_vip }}/32 dev eth-vip

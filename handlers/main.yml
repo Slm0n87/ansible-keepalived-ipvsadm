@@ -13,3 +13,8 @@
   when:
     - _servicestart is not changed
     - _servicestart is not defined
+
+- name: start realserver
+  ansible.builtin.service:
+    name: ipvs-realserver
+    state: started

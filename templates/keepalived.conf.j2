@@ -1,46 +1,49 @@
 global_defs {
+
+    vrrp_garp_master_repeat 5
+    vrrp_garp_interval 1
+    vrrp_garp_lower_prio_repeat 1
+    # vrrp_garp_master_refresh 300
+    vrrp_garp_master_refresh 60
+    vrrp_garp_master_refresh_repeat 1
+    vrrp_higher_prio_send_advert true
+
     router_id lvs_lb # Linux Virtual Servers - Load Balancer
     enable_script_security
     script_user root
     }
 
-{% for vs in virtual_servers %}
+{% for vrrp in vrrp_instances %}
 {% set state="MASTER" if ansible_play_hosts.index(inventory_hostname)==loop.index0 else "BACKUP" %}
 vrrp_instance VI_{{ loop.index }} {
     state {{ state }} # MASTER or BACKUP
-    interface {{ interface }} # Distro dependant
-    virtual_router_id {{ 100 + loop.index0 }}
+    interface {{ vrrp.interface }}
+    virtual_router_id {{ 180 + loop.index0 }}
     priority {{ 200 if state=="MASTER" else 180 }}
     advert_int 1
-    authentication { 
-        auth_type PASS  
-        auth_pass {{ vs.auth_passwd }}
+    authentication {
+        auth_type PASS
+        auth_pass {{ vrrp.auth_pass }}
     }
-    virtual_ipaddress { 
-        {{ vs.ip }}/{{ vs.cidr }}
+    virtual_ipaddress {
+{% for item in vrrp.cidr %}
+        {{ item }}
+{% endfor %}
     }
     notify "/etc/keepalived/notify.sh"
 }
 
 {% endfor %}
 {% for vs in virtual_servers %}
-virtual_server {{ vs.ip }} 80 {
-    delay_loop 6 
+virtual_server {{ vs.ip }} {{ vs.port | default('443') }} {
+    delay_loop 6
     lb_algo {{ lb_algo }}
     lb_kind {{ lb_kind }}
-    protocol TCP 
-{% for rs in real_servers %}
+    protocol {{ vs.protocol | default('TCP') }}
+{% for rs in vs.real_servers %}
     real_server {{ rs.ip }} {
-        weight {{ loop.index }}
-        HTTP_GET {
-            url {
-              path / 
-              status_code 200
-            }
-            connect_timeout 3 
-            retry 2
-            delay_before_retry 2
-        }
+        weight {{ rs.weight | default('10') }}
+        {{ vs.check | default('') }}
     }
 {% endfor %}
 }

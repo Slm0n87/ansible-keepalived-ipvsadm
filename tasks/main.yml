@@ -16,7 +16,7 @@
     name: ["{{ keepalived_package_name }}","{{ ipvsadm_package_name }}"]
     state: present
     update_cache: yes
-    
+
 - name: Generate notify ipvsadm script
   ansible.builtin.template:
     src: notify.sh.j2

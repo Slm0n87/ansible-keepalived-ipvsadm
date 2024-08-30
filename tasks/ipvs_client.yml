@@ -1,0 +1,32 @@
+---
+- name: Copy setup-realserver script
+  ansible.builtin.template:
+    src: setup-realserver.sh.j2
+    dest: /opt/setup-realserver.sh
+    mode: "0755"
+  notify:
+    - start realserver
+
+- name: Copy ipvs-realserver systemd service
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      Description="Setup IPVS realserver"
+      Before=network.target
+
+      [Service]
+      Type=simple
+      ExecStart="/opt/setup-realserver.sh"
+
+      [Install]
+      WantedBy=multi-user.target
+    dest: /etc/systemd/system/ipvs-realserver.service
+  notify:
+    - start realserver
+
+- name: systemd enable ipvs-realserver
+  systemd:
+    name: ipvs-realserver
+    enabled: true
+    daemon_reload: yes
+...
